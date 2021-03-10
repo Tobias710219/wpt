@@ -30,6 +30,18 @@ promise_test(async t => {
    'should only have origin.');
 
 promise_test(async t => {
+    const full_scope_url = new URL(SCOPE, location.href, {type: 'module'});
+    const redirect_to = `${full_scope_url.href}?ignore=true`;
+    const frame = await with_iframe(
+        `${SCOPE}?pipe=status(302)|header(Location,${redirect_to})|` +
+        'header(Referrer-Policy,origin)');
+    assert_equals(frame.contentDocument.referrer,
+                  full_scope_url.origin + '/');
+    t.add_cleanup(() => frame.remove());
+}, 'Referrer for a module script redirected with referrer-policy (origin) ' +
+   'should only have origin.');
+
+promise_test(async t => {
     const host_info = get_host_info();
     const frame = await with_iframe(SCOPE);
     const channel = new MessageChannel();

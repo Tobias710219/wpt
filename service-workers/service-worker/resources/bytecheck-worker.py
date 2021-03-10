@@ -24,9 +24,20 @@ def main(request, response):
     if imported_request_type == b'time':
         imported_request = b'?imported=time'
 
-    body = b'''
-    // %s
-    importScripts('%sbytecheck-worker-imported-script.py%s');
-    ''' % (main_content, imported_request_path, imported_request)
+    script_type = b''
+    options = request.GET[b'options']
+    if b'type' in options:
+       script_type = options[b'type']
+
+    if script_type == b'module':
+        body = b'''
+        // %s
+        import '%sbytecheck-worker-imported-script.py%s';
+        ''' % (main_content, imported_request_path, imported_request)
+    else:
+        body = b'''
+        // %s
+        importScripts('%sbytecheck-worker-imported-script.py%s');
+        ''' % (main_content, imported_request_path, imported_request)
 
     return headers, body
